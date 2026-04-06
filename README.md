@@ -36,29 +36,6 @@ Core outcomes:
 
 ## Architecture
 
-```text
-HTTP Client
-     |
-     v
-Express Server (server.js)
-     |
-     +---------------------------+---------------------------+
-     |                           |                           |
-     v                           v                           v
-userRoutes (Public)       recordRoutes                dashboardRoutes
-     |                    (Bearer Token)              (Bearer Token)
-     v                           |                           |
-userController             authMiddleware              authMiddleware
-     |                           |                           |
-     v                      roleMiddleware             roleMiddleware
-  User Model                     |                           |
-     |                           v                           v
-     v                    recordController          dashboardController
-  MongoDB <-----------+         |                           |
-                       |         v                           v
-                       +---- Record Model <------------- Record Model
-```
-
 ```mermaid
 flowchart LR
     C[Client]
@@ -132,66 +109,6 @@ Records are never permanently deleted. The `isDeleted` flag preserves data for a
 | Authentication | JWT (`jsonwebtoken`) |
 | Password Hashing | bcryptjs |
 | Dev Server | nodemon |
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-- MongoDB instance (local or Atlas)
-
-### Quick Start
-
-```bash
-git clone <your-repo-url>
-cd finance-backend
-npm install
-```
-
-Create a `.env` file in the root directory, start MongoDB, then run the server:
-
-```bash
-npm run dev
-```
-
-- Backend: `http://localhost:5000`
-
----
-
-## Environment Variables
-
-Create a `.env` file with:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-```
-
----
-
-## Run The Server
-
-Development:
-
-```bash
-npm run dev
-```
-
-Production:
-
-```bash
-npm start
-```
-
-Base URL:
-
-```text
-http://localhost:5000
-```
 
 ---
 
@@ -278,6 +195,66 @@ http://localhost:5000
 |---|---|---|---|
 | `/api/dashboard/summary` | `user` | string | Optional user id filter |
 | `/api/dashboard/categories` | `user` | string | Optional user id filter |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+- MongoDB instance (local or Atlas)
+
+### Quick Start
+
+```bash
+git clone <your-repo-url>
+cd finance-backend
+npm install
+```
+
+Create a `.env` file in the root directory, start MongoDB, then run the server:
+
+```bash
+npm run dev
+```
+
+- Backend: `http://localhost:5000`
+
+---
+
+## Environment Variables
+
+Create a `.env` file with:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
+
+---
+
+## Run The Server
+
+Development:
+
+```bash
+npm run dev
+```
+
+Production:
+
+```bash
+npm start
+```
+
+Base URL:
+
+```text
+http://localhost:5000
+```
 
 ---
 
