@@ -75,13 +75,26 @@ flowchart LR
 ---
 ## Key Features
 
-- **JWT Authentication** – Users authenticate via email and password, receive a JWT, and must include it as a Bearer token for protected routes.
-- **Role-Based Access Control** – Supports `viewer`, `analyst`, and `admin` roles enforced using `authMiddleware` and `authorizeRoles(...)`.
-- **Record Management** – Admins can create, update, and soft-delete records using the `isDeleted=true` flag.
-- **Paginated Record Listing** – Supports filtering by user, type, and category with pagination and configurable page size.
-- **Dashboard Summary** – Provides aggregated income, expense, and balance data with optional user-level filtering.
-- **Category Breakdown** – Returns category-wise totals for charts and frontend analytics.
-- **Soft Delete Support** – Preserves records for audit and recovery while hiding them from standard queries.
+- **JWT Authentication** – Users authenticate via email and password, receive a JWT,  
+  and must include it as a Bearer token for protected routes.
+
+- **Role-Based Access Control** – Supports `viewer`, `analyst`, and `admin` roles,  
+  enforced using `authMiddleware` and `authorizeRoles(...)`.
+
+- **Record Management** – Admins can create, update, and soft-delete records,  
+  using the `isDeleted=true` flag.
+
+- **Paginated Record Listing** – Supports filtering by user, type, and category,  
+  with pagination and configurable page size.
+
+- **Dashboard Summary** – Provides aggregated income, expense, and balance data,  
+  with optional user-level filtering.
+
+- **Category Breakdown** – Returns category-wise totals,  
+  enabling charts and frontend analytics.
+
+- **Soft Delete Support** – Preserves records for audit and recovery,  
+  while hiding them from standard queries.
 
 ## Tech Stack
 
