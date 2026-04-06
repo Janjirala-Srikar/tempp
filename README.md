@@ -75,26 +75,19 @@ flowchart LR
 ---
 ## Key Features
 
-- **JWT Authentication** – Users authenticate via email and password, receive a JWT,  
-  and must include it as a Bearer token for protected routes.
+- **JWT Authentication** – Users authenticate securely using email and password, receive a signed JWT token, and must include it as a Bearer token to access all protected API routes.
 
-- **Role-Based Access Control** – Supports `viewer`, `analyst`, and `admin` roles,  
-  enforced using `authMiddleware` and `authorizeRoles(...)`.
+- **Role-Based Access Control** – Supports `viewer`, `analyst`, and `admin` roles with strict access enforcement using `authMiddleware` and `authorizeRoles(...)` to ensure each user only accesses permitted resources.
 
-- **Record Management** – Admins can create, update, and soft-delete records,  
-  using the `isDeleted=true` flag.
+- **Record Management** – Admin users can create income and expense records, update existing entries, and perform soft-deletes by setting `isDeleted=true` instead of permanently removing data.
 
-- **Paginated Record Listing** – Supports filtering by user, type, and category,  
-  with pagination and configurable page size.
+- **Paginated Record Listing** – Provides flexible record retrieval with filtering by user, type, and category, along with pagination support and configurable page size for efficient data handling.
 
-- **Dashboard Summary** – Provides aggregated income, expense, and balance data,  
-  with optional user-level filtering.
+- **Dashboard Summary** – Enables admins and analysts to retrieve aggregated financial insights including total income, total expenses, and net balance, with optional filtering by specific users.
 
-- **Category Breakdown** – Returns category-wise totals,  
-  enabling charts and frontend analytics.
+- **Category Breakdown** – Offers detailed category-wise aggregation of financial data, allowing frontend applications to easily build charts and visualize spending patterns without extra processing.
 
-- **Soft Delete Support** – Preserves records for audit and recovery,  
-  while hiding them from standard queries.
+- **Soft Delete Support** – Ensures records are never permanently deleted by using an `isDeleted` flag, helping maintain audit trails, data recovery, and consistent historical tracking.
 
 ## Tech Stack
 
