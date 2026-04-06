@@ -1,38 +1,80 @@
-# Finance Backend
+# Finance Backend - REST API for Personal Finance Tracking
 
-Backend API for a finance tracking application built with Node.js, Express, MongoDB, and JWT authentication.
+Finance Backend is a RESTful API service that handles user authentication, role-based access control, financial record management, and dashboard analytics for a personal finance tracking application.
 
-## Tech Stack
+Instead of treating finance entries as raw data rows, this project organizes income and expense records into role-gated, queryable summaries that serve both individual users and admin dashboards.
 
-- Node.js
-- Express
-- MongoDB with Mongoose
-- JWT for authentication
-- bcryptjs for password hashing
+---
 
-## Features
+## Overview
 
-- User registration and login
-- Role-based access control (`viewer`, `analyst`, `admin`)
-- Record management for income and expense entries
-- Dashboard summary APIs for totals and category breakdowns
-- Soft delete support for records
+The API accepts standard HTTP requests, authenticates users with JWT, stores data in MongoDB using Mongoose, and exposes endpoints for record management and financial summaries.
 
-## Project Structure
+Core outcomes:
+
+- register and authenticate users securely
+- enforce role-based access to protected routes
+- create, update, and soft-delete financial records
+- aggregate income, expense, and balance summaries
+- break down spending by category
+
+---
+
+## Problem
+
+Personal finance apps often lack a clean backend layer that enforces access control and separates concerns between different user types.
+
+That creates several issues:
+
+- No separation between read-only viewers and data managers
+- Financial records are permanently deleted with no audit trail
+- Dashboard aggregations mix all records without role filtering
+- No structured summary layer for income vs. expense breakdowns
+- Category-level insights require manual data processing
+
+---
+
+## Solution
+
+Finance Backend provides a structured API layer for financial data management:
+
+1. **Register** - Accept user signups with optional role assignment.
+2. **Authenticate** - Issue JWT tokens valid for 1 day on successful login.
+3. **Authorize** - Gate protected routes behind `authMiddleware` and `roleMiddleware`.
+4. **Record** - Create, update, and soft-delete income and expense entries.
+5. **Paginate** - Return filtered, paginated record lists with query param support.
+6. **Summarize** - Aggregate totals for income, expense, and balance per user.
+7. **Categorize** - Break down totals by category for dashboard insights.
+
+---
+
+## Architecture
 
 ```text
-finance-backend/
-|-- config/
-|-- controllers/
-|-- middleware/
-|-- models/
-|-- routes/
-|-- req.http
-|-- server.js
-`-- .env
+HTTP Client / REST Consumer
+        |
+        v
+Express Server (server.js)
+        |
+        +-- User Routes (Public)
+        +-- Record Routes (Auth + Role Gated)
+        +-- Dashboard Routes (Auth + Role Gated)
+        |
+        +-- authMiddleware (JWT Verification)
+        +-- roleMiddleware (Role Enforcement)
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+  userController               recordController
+  recordController             dashboardController
+        |
+        v
+   MongoDB (Mongoose)
+        |
+        +-- User Model
+        +-- Record Model
 ```
-
-## Architecture Diagram
 
 ```mermaid
 flowchart LR
@@ -78,6 +120,73 @@ Brief flow:
 - Controllers use Mongoose models to read and write data in MongoDB.
 - Login returns a JWT token that clients send back in the `Authorization` header.
 
+---
+
+## Key Features
+
+**JWT Authentication**
+Users authenticate via email and password. A signed JWT token is returned and must be sent as a Bearer token on all protected routes.
+
+**Role-Based Access Control**
+Three roles are supported: `viewer`, `analyst`, and `admin`. Route access is enforced through `authMiddleware` and `authorizeRoles(...)` so each role only accesses what it is permitted to.
+
+**Record Management**
+Admins can create income and expense records attached to their user account, update existing records, and soft-delete records by flagging `isDeleted=true` rather than permanently removing them.
+
+**Paginated Record Listing**
+The record list endpoint supports filtering by user, type, and category, and returns paginated results with configurable page size.
+
+**Dashboard Summary**
+Admins and analysts can retrieve aggregated totals for income, expenses, and net balance, optionally scoped to a specific user.
+
+**Category Breakdown**
+A dedicated endpoint returns per-category totals, enabling frontend charts and spending breakdowns without client-side aggregation.
+
+**Soft Delete Support**
+Records are never permanently deleted. The `isDeleted` flag preserves data for audit and recovery while hiding it from standard queries.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Runtime | Node.js |
+| Framework | Express |
+| Database | MongoDB |
+| ODM | Mongoose |
+| Authentication | JWT (`jsonwebtoken`) |
+| Password Hashing | bcryptjs |
+| Dev Server | nodemon |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+- MongoDB instance (local or Atlas)
+
+### Quick Start
+
+```bash
+git clone <your-repo-url>
+cd finance-backend
+npm install
+```
+
+Create a `.env` file in the root directory, start MongoDB, then run the server:
+
+```bash
+npm run dev
+```
+
+- Backend: `http://localhost:5000`
+
+---
+
 ## Environment Variables
 
 Create a `.env` file with:
@@ -88,11 +197,39 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
-## Installation
+---
 
-```bash
-npm install
+## Test Credentials
+
+Use these credentials to test the API without manual registration:
+
+### Admin User
+
 ```
+Email:    admin@financeapp.com
+Password: Admin@1234
+Role:     admin
+```
+
+### Analyst User
+
+```
+Email:    analyst@financeapp.com
+Password: Analyst@1234
+Role:     analyst
+```
+
+### Viewer User
+
+```
+Email:    viewer@financeapp.com
+Password: Viewer@1234
+Role:     viewer
+```
+
+> These users can be seeded into MongoDB using the registration endpoint or a seed script. The admin token unlocks all record and dashboard routes.
+
+---
 
 ## Run The Server
 
@@ -114,6 +251,8 @@ Base URL:
 http://localhost:5000
 ```
 
+---
+
 ## Authentication
 
 - Protected routes expect `Authorization: Bearer <token>`.
@@ -125,7 +264,9 @@ http://localhost:5000
 
 - `viewer`: default user role when no role is provided at signup
 - `analyst`: can access dashboard summary endpoints
-- `admin`: can access dashboard endpoints and create/update/delete records
+- `admin`: can access dashboard endpoints and create, update, and delete records
+
+---
 
 ## API Routes
 
@@ -198,9 +339,25 @@ http://localhost:5000
 
 ---
 
+## Project Structure
+
+```text
+finance-backend/
+|-- config/
+|-- controllers/
+|-- middleware/
+|-- models/
+|-- routes/
+|-- req.http
+|-- server.js
+`-- .env
+```
+
+---
+
 ## Testing The API
 
-The repository already includes [`req.http`](/d:/finance-backend/req.http), which contains ready-to-run HTTP requests for:
+The repository includes [`req.http`](/finance-backend/req.http), which contains ready-to-run HTTP requests for:
 
 - user registration
 - login
@@ -208,12 +365,16 @@ The repository already includes [`req.http`](/d:/finance-backend/req.http), whic
 - dashboard summary endpoints
 - health check
 
+---
+
 ## Current Behavior Notes
 
 - `GET /api/users` is public.
-- `GET /api/records` is also public, while create/update/delete are admin-only.
+- `GET /api/records` is also public, while create, update, and delete are admin-only.
 - Dashboard aggregations do not currently filter out soft-deleted records.
 - Auth middleware logs the authorization header and auth errors to the console.
+
+---
 
 ## Scripts
 
