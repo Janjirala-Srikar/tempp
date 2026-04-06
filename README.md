@@ -6,6 +6,20 @@ Instead of treating finance entries as raw data rows, this project organizes inc
 
 ---
 
+## Test Credentials
+
+Use these credentials to test the API without manual registration:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| `admin` | admin@financeapp.com | Admin@1234 |
+| `analyst` | analyst@financeapp.com | Analyst@1234 |
+| `viewer` | viewer@financeapp.com | Viewer@1234 |
+
+> These users can be seeded into MongoDB using the registration endpoint or a seed script. The admin token unlocks all record and dashboard routes.
+
+---
+
 ## Overview
 
 The API accepts standard HTTP requests, authenticates users with JWT, stores data in MongoDB using Mongoose, and exposes endpoints for record management and financial summaries.
@@ -20,60 +34,29 @@ Core outcomes:
 
 ---
 
-## Problem
-
-Personal finance apps often lack a clean backend layer that enforces access control and separates concerns between different user types.
-
-That creates several issues:
-
-- No separation between read-only viewers and data managers
-- Financial records are permanently deleted with no audit trail
-- Dashboard aggregations mix all records without role filtering
-- No structured summary layer for income vs. expense breakdowns
-- Category-level insights require manual data processing
-
----
-
-## Solution
-
-Finance Backend provides a structured API layer for financial data management:
-
-1. **Register** - Accept user signups with optional role assignment.
-2. **Authenticate** - Issue JWT tokens valid for 1 day on successful login.
-3. **Authorize** - Gate protected routes behind `authMiddleware` and `roleMiddleware`.
-4. **Record** - Create, update, and soft-delete income and expense entries.
-5. **Paginate** - Return filtered, paginated record lists with query param support.
-6. **Summarize** - Aggregate totals for income, expense, and balance per user.
-7. **Categorize** - Break down totals by category for dashboard insights.
-
----
-
 ## Architecture
 
 ```text
-HTTP Client / REST Consumer
-        |
-        v
+HTTP Client
+     |
+     v
 Express Server (server.js)
-        |
-        +-- User Routes (Public)
-        +-- Record Routes (Auth + Role Gated)
-        +-- Dashboard Routes (Auth + Role Gated)
-        |
-        +-- authMiddleware (JWT Verification)
-        +-- roleMiddleware (Role Enforcement)
-        |
-        +-----------------------------+
-        |                             |
-        v                             v
-  userController               recordController
-  recordController             dashboardController
-        |
-        v
-   MongoDB (Mongoose)
-        |
-        +-- User Model
-        +-- Record Model
+     |
+     +---------------------------+---------------------------+
+     |                           |                           |
+     v                           v                           v
+userRoutes (Public)       recordRoutes                dashboardRoutes
+     |                    (Bearer Token)              (Bearer Token)
+     v                           |                           |
+userController             authMiddleware              authMiddleware
+     |                           |                           |
+     v                      roleMiddleware             roleMiddleware
+  User Model                     |                           |
+     |                           v                           v
+     v                    recordController          dashboardController
+  MongoDB <-----------+         |                           |
+                       |         v                           v
+                       +---- Record Model <------------- Record Model
 ```
 
 ```mermaid
@@ -110,15 +93,6 @@ flowchart LR
     UC -. JWT token .-> C
     C -. Bearer token .-> A
 ```
-
-Brief flow:
-
-- Client requests enter `server.js`, which mounts the route modules.
-- Public user routes go directly to `userController`.
-- Protected record and dashboard routes pass through `authMiddleware` first.
-- Role-based checks happen in `roleMiddleware` before hitting protected controllers.
-- Controllers use Mongoose models to read and write data in MongoDB.
-- Login returns a JWT token that clients send back in the `Authorization` header.
 
 ---
 
@@ -196,38 +170,6 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
-
----
-
-## Test Credentials
-
-Use these credentials to test the API without manual registration:
-
-### Admin User
-
-```
-Email:    admin@financeapp.com
-Password: Admin@1234
-Role:     admin
-```
-
-### Analyst User
-
-```
-Email:    analyst@financeapp.com
-Password: Analyst@1234
-Role:     analyst
-```
-
-### Viewer User
-
-```
-Email:    viewer@financeapp.com
-Password: Viewer@1234
-Role:     viewer
-```
-
-> These users can be seeded into MongoDB using the registration endpoint or a seed script. The admin token unlocks all record and dashboard routes.
 
 ---
 
