@@ -4,6 +4,21 @@ Finance Backend is a RESTful API service that handles user authentication, role-
 
 Instead of treating finance entries as raw data rows, this project organizes income and expense records into role-gated, queryable summaries that serve both individual users and admin dashboards.
 
+
+## Overview
+
+The API accepts standard HTTP requests, authenticates users with JWT, stores data in MongoDB using Mongoose, and exposes endpoints for record management and financial summaries.
+
+Core outcomes:
+
+- register and authenticate users securely
+- enforce role-based access to protected routes
+- create, update, and soft-delete financial records
+- aggregate income, expense, and balance summaries
+- break down spending by category
+
+---
+
 ---
 
 ## Test Credentials
@@ -17,20 +32,6 @@ Use these credentials to test the API without manual registration:
 | `viewer` | viewer@financeapp.com | Viewer@1234 |
 
 > These users can be seeded into MongoDB using the registration endpoint or a seed script. The admin token unlocks all record and dashboard routes.
-
----
-
-## Overview
-
-The API accepts standard HTTP requests, authenticates users with JWT, stores data in MongoDB using Mongoose, and exposes endpoints for record management and financial summaries.
-
-Core outcomes:
-
-- register and authenticate users securely
-- enforce role-based access to protected routes
-- create, update, and soft-delete financial records
-- aggregate income, expense, and balance summaries
-- break down spending by category
 
 ---
 
@@ -75,28 +76,26 @@ flowchart LR
 
 ## Key Features
 
-**JWT Authentication**
+• **JWT Authentication**  
 Users authenticate via email and password. A signed JWT token is returned and must be sent as a Bearer token on all protected routes.
 
-**Role-Based Access Control**
+• **Role-Based Access Control**  
 Three roles are supported: `viewer`, `analyst`, and `admin`. Route access is enforced through `authMiddleware` and `authorizeRoles(...)` so each role only accesses what it is permitted to.
 
-**Record Management**
+• **Record Management**  
 Admins can create income and expense records attached to their user account, update existing records, and soft-delete records by flagging `isDeleted=true` rather than permanently removing them.
 
-**Paginated Record Listing**
+• **Paginated Record Listing**  
 The record list endpoint supports filtering by user, type, and category, and returns paginated results with configurable page size.
 
-**Dashboard Summary**
+• **Dashboard Summary**  
 Admins and analysts can retrieve aggregated totals for income, expenses, and net balance, optionally scoped to a specific user.
 
-**Category Breakdown**
+• **Category Breakdown**  
 A dedicated endpoint returns per-category totals, enabling frontend charts and spending breakdowns without client-side aggregation.
 
-**Soft Delete Support**
+• **Soft Delete Support**  
 Records are never permanently deleted. The `isDeleted` flag preserves data for audit and recovery while hiding it from standard queries.
-
----
 
 ## Tech Stack
 
